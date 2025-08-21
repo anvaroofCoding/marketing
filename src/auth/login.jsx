@@ -5,45 +5,54 @@ import {
   Card,
   Typography,
   notification,
-  Space,
+  ConfigProvider,
 } from "antd";
 import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
 import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
 export default function Login() {
   const [api, contextHolder] = notification.useNotification();
+  const [loadings, setLoadings] = useState([]);
+  const navigate = useNavigate();
 
   const openNotification = (type, message, description) => {
     api[type]({
       message,
       description,
       placement: "bottomRight",
-      duration: 4.5,
+      duration: 2,
     });
   };
 
   const onFinish = async (values) => {
-    const res = await axios.post(
-      "https://reklama-project-3.onrender.com/api/token/",
-      values,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      enterLoading(0);
+      const res = await axios.post(
+        "https://reklamaproject.onrender.com/api/token/",
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        openNotification("success", "Login muvaffaqiyatli amalga oshirildi");
+        localStorage.setItem("marketing1", res.data.access);
+        navigate("/");
       }
-    );
-    console.log("Success:", res);
-    openNotification(
-      "success",
-      "Login Successful!",
-      "Welcome back! You have been logged in successfully."
-    );
+    } catch (error) {
+      openNotification("error", "Diqqat!", "Login yoki parol noto‘g‘ri!");
+      console.log(error);
+    }
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
+  const onFinishFailed = () => {
     openNotification(
       "error",
       "Login Failed",
@@ -51,10 +60,26 @@ export default function Login() {
     );
   };
 
+  const enterLoading = (index) => {
+    setLoadings((prevLoadings) => {
+      const newLoadings = [...prevLoadings];
+      newLoadings[index] = true;
+      return newLoadings;
+    });
+    setTimeout(() => {
+      setLoadings((prevLoadings) => {
+        const newLoadings = [...prevLoadings];
+        newLoadings[index] = false;
+        return newLoadings;
+      });
+    }, 3000);
+  };
+
   return (
-    <>
+    <ConfigProvider theme={{ zIndexPopupBase: 2000 }}>
+      {/* 👉 Notification contextHolder eng tepada turishi kerak */}
       {contextHolder}
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex justify-center items-center p-4">
+      <div className="min-h-screen bg-gray-200 flex justify-center items-center p-4">
         <Card
           className="w-full max-w-md shadow-2xl border-0"
           style={{
@@ -64,8 +89,8 @@ export default function Login() {
           }}
         >
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <LoginOutlined className="text-white text-2xl" />
+            <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <img src="/logo2.png" alt="marketing metro logo" />
             </div>
             <Title level={2} className="mb-2 text-gray-800">
               Metropoliten marketing
@@ -111,6 +136,8 @@ export default function Login() {
 
             <Form.Item className="mb-6">
               <Button
+                loading={loadings[0]}
+                onClick={() => enterLoading(0)}
                 type="primary"
                 htmlType="submit"
                 className="w-full h-12 rounded-lg bg-blue-500 hover:bg-blue-600 border-0 text-base font-medium"
@@ -122,6 +149,6 @@ export default function Login() {
           </Form>
         </Card>
       </div>
-    </>
+    </ConfigProvider>
   );
 }
