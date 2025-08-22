@@ -20,7 +20,7 @@ export default function TashkentMetroMap() {
     const fetchStations = async () => {
       try {
         const response = await fetch(
-          "https://reklamaproject.onrender.com/api/stations/",
+          "http://192.168.10.41:9000/api/stations/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("marketing1")}`,
@@ -29,12 +29,13 @@ export default function TashkentMetroMap() {
         );
         const data = await response.json();
 
-        if (Array.isArray(data)) {
-          setApiStations(data);
-        } else {
-          console.error("[v0] API response is not an array:", data);
-          setApiStations([]); // Keep as empty array if response is not array
-        }
+        // if (Array.isArray(data)) {
+        //   setApiStations(data.results);
+        // } else {
+        //   console.error("[v0] API response is not an array:", data.results);
+        //   setApiStations([]); // Keep as empty array if response is not array
+        // }
+        setApiStations(data.results);
         setLoading(false);
       } catch (error) {
         console.error("[v0] Error fetching stations:", error);

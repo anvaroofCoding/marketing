@@ -36,13 +36,6 @@ import StationDetail from "./components/StationDetail";
 const { Content, Sider, Header } = Layout;
 const { Title } = Typography;
 
-const DashboardPage = () => (
-  <div>
-    <Title level={2}>Bosh sahifa</Title>
-    <p>Dashboard ma'lumotlari bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
 const MapPage = () => <TashkentMetroMap />;
 
 const XorazmPage = () => (
@@ -61,12 +54,7 @@ const AndijonPage = () => (
 
 const menuItems = [
   {
-    key: "/dashboard",
-    icon: <HomeOutlined />,
-    label: "Bosh sahifa",
-  },
-  {
-    key: "/map",
+    key: "/",
     icon: <HomeOutlined />,
     label: "Xarita",
   },
@@ -342,11 +330,10 @@ function AppLayout() {
                 }}
               >
                 <Routes>
-                  <Route path="/" element={<DashboardPage />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/map" element={<MapPage />} />
+                  <Route path="/" element={<MapPage />} />
                   <Route path="/xorazm" element={<XorazmPage />} />
                   <Route path="/andijon" element={<AndijonPage />} />
+                  <Route path="/station/:id" element={<StationDetail />} />
                   <Route path="/station/:id" element={<StationDetail />} />
                 </Routes>
               </Content>
@@ -364,7 +351,6 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/*" element={<AppLayout />} />
-        <Route path="/station/:id" element={<StationDetail />} />
       </Routes>
     </Router>
   );

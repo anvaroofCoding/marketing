@@ -32,7 +32,7 @@ export default function Login() {
     try {
       enterLoading(0);
       const res = await axios.post(
-        "https://reklamaproject.onrender.com/api/token/",
+        "http://192.168.10.41:9000/api/token/",
         values,
         {
           headers: {
