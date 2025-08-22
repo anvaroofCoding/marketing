@@ -8,7 +8,7 @@ export default function StationDetail() {
 
   if (isLoading)
     return (
-      <div className="w-full h-[100%] flex justify-center items-center">
+      <div className="w-full h-screen flex justify-center items-center">
         <Spin size="large" />
       </div>
     );
@@ -16,5 +16,14 @@ export default function StationDetail() {
 
   console.log(data);
 
-  return <div></div>;
+  return (
+    <div className="w-full h-screen relative">
+      <div className="w-[1800px] relative">
+        <button className="absolute px-3 py-1 bg-blue-900 text-white rounded-xl bottom-30 left-13">
+          15
+        </button>
+        <img src={data.schema_image} alt="" />
+      </div>
+    </div>
+  );
 }

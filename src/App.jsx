@@ -364,6 +364,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/*" element={<AppLayout />} />
+        <Route path="/station/:id" element={<StationDetail />} />
       </Routes>
     </Router>
   );
