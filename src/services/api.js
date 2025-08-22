@@ -3,8 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://192.168.10.41:9000/api",
-    credentials: "include",
+    baseUrl: "https://2abfcea964d1.ngrok-free.app/api",
+    credentials: "include", // cookie ishlatadi
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("marketing1");
       if (token) {
@@ -13,21 +13,28 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Positions"], // ✅ bu shart
+  tagTypes: ["Positions"],
+
   endpoints: (builder) => ({
+    // bitta stansiyani olish
     getStation: builder.query({
-      query: (id) => `stations/${id}/`,
+      query: (id) => `/stations/${id}/`,
     }),
+
+    // stansiyaga tegishli positionlarni olish
     getPositionsByStation: builder.query({
-      query: (stationId) => `positions/?station=${stationId}`,
-      providesTags: ["Positions"], // ✅ cache bog‘lanadi
+      query: ({ stationId, page = 1, limit = 10 }) =>
+        `/positions/?station=${stationId}&page=${page}&limit=${limit}`,
+      providesTags: ["Positions"],
     }),
+
+    // position o‘chirish
     deletePosition: builder.mutation({
       query: (id) => ({
-        url: `positions/${id}/`,
+        url: `/positions/${id}/`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Positions"], // ✅ o‘chirsa query avtomatik yangilanadi
+      invalidatesTags: ["Positions"],
     }),
   }),
 });

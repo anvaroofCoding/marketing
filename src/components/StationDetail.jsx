@@ -14,7 +14,6 @@ import {
   Table,
   notification,
   Tooltip,
-  Pagination,
 } from "antd";
 import { useState } from "react";
 import {
@@ -22,14 +21,17 @@ import {
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
+
 const { Column, ColumnGroup } = Table;
 
 export default function StationDetail() {
   const [api, contextHolder] = notification.useNotification();
   const [value, setValue] = useState("");
-  console.log(value);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(7);
 
   const { id } = useParams();
+
   const openNotification = (type, message, description) => {
     api[type]({
       message,
@@ -38,28 +40,37 @@ export default function StationDetail() {
       duration: 2,
     });
   };
+
+  // stationni olish
   const {
     data: station,
     isLoading: stationLoading,
     error: Iserr,
   } = useGetStationQuery(id);
 
+  // positions olish
   const {
     data: positions,
     isLoading: positionsLoading,
     error: Eserr,
-  } = useGetPositionsByStationQuery(id);
+  } = useGetPositionsByStationQuery({
+    stationId: id,
+    page: currentPage,
+    limit: pageSize, // ✅ backend limit param kutyapti
+  });
+
   const [deletePosition, { isLoading: deleteLoading }] =
     useDeletePositionMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  if (positionsLoading || stationLoading || deleteLoading)
+  if (positionsLoading || stationLoading)
     return (
       <div className="w-full h-[100%] flex justify-center items-center">
         <Spin size="large" />
       </div>
     );
+
   if (Iserr || Eserr) return <p>Xatolik yuz berdi!</p>;
 
   const showModal = () => {
@@ -79,16 +90,18 @@ export default function StationDetail() {
       await deletePosition(ids).unwrap();
       openNotification("success", "O‘chirildi ✅");
     } catch (error) {
-      openNotification("error", error);
+      openNotification("error", `${error}`);
     }
   };
+
+  console.log(positions);
 
   return (
     <div className="w-full h-full">
       {contextHolder}
       <div className="h-[15%] w-full flex justify-between items-center">
         <div>
-          <Image width={150} src={station.schema_image} />
+          <Image width={150} src={station?.schema_image} />
         </div>
         <Input
           placeholder="Qidiruv"
@@ -103,7 +116,6 @@ export default function StationDetail() {
         </Button>
         <Modal
           title="Basic Modal"
-          closable={{ "aria-label": "Custom Close Button" }}
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
@@ -113,8 +125,21 @@ export default function StationDetail() {
           <p>Some contents...</p>
         </Modal>
       </div>
+
       <div className="h-[85%] w-full">
-        <Table dataSource={positions.results}>
+        <Table
+          dataSource={positions?.results}
+          rowKey="id"
+          pagination={{
+            current: currentPage,
+            pageSize,
+            total: positions?.count || 0, // ✅ backend count qaytaradi
+            onChange: (page, pageSize) => {
+              setCurrentPage(page);
+              setPageSize(pageSize);
+            },
+          }}
+        >
           <ColumnGroup>
             <Column title="ID" dataIndex="id" key="id" />
             <Column title="Raqami" dataIndex="number" key="number" />
@@ -162,9 +187,7 @@ export default function StationDetail() {
                     <Button
                       danger
                       type="primary"
-                      onClick={() => {
-                        handleDelete(record.id);
-                      }}
+                      onClick={() => handleDelete(record.id)}
                       loading={deleteLoading}
                     >
                       <DeleteOutlined />
@@ -175,7 +198,6 @@ export default function StationDetail() {
             />
           </ColumnGroup>
         </Table>
-        <Pagination defaultCurrent={1} total={5} />
       </div>
     </div>
   );

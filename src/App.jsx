@@ -162,10 +162,11 @@ function AppLayout() {
     if (!marketing1) return;
 
     try {
-      const check = await fetch("https://reklamaproject.onrender.com/api/me/", {
+      const check = await fetch("https://2abfcea964d1.ngrok-free.app/api/me/", {
         headers: {
           Authorization: `Bearer ${marketing1}`,
         },
+        credentials: "include",
       });
 
       if (check.status === 401 || check.status === 403) {

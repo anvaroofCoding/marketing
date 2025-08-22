@@ -32,12 +32,13 @@ export default function Login() {
     try {
       enterLoading(0);
       const res = await axios.post(
-        "http://192.168.10.41:9000/api/token/",
+        "https://2abfcea964d1.ngrok-free.app/api/token/",
         values,
         {
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true,
         }
       );
 
