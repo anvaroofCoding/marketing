@@ -12,11 +12,6 @@ import logo from "./assets/logo2.png";
 import LoginPage from "./auth/login";
 import {
   HomeOutlined,
-  UserOutlined,
-  SettingOutlined,
-  FileTextOutlined,
-  BarChartOutlined,
-  TeamOutlined,
   AppstoreOutlined,
   BugOutlined,
   MenuFoldOutlined,
@@ -36,6 +31,7 @@ import {
   Spin,
 } from "antd";
 import TashkentMetroMap from "./components/newMapMertopoliten";
+import StationDetail from "./components/StationDetail";
 
 const { Content, Sider, Header } = Layout;
 const { Title } = Typography;
@@ -60,48 +56,6 @@ const AndijonPage = () => (
   <div>
     <Title level={2}>Andijon</Title>
     <p>Andijon viloyati ma'lumotlari bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const UsersPage = () => (
-  <div>
-    <Title level={2}>Foydalanuvchilar</Title>
-    <p>Foydalanuvchilar ro'yxati bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const PostsPage = () => (
-  <div>
-    <Title level={2}>Postlar</Title>
-    <p>Postlar ro'yxati bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const ProblemsPage = () => (
-  <div>
-    <Title level={2}>Muammolar</Title>
-    <p>Tizim muammolari bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const AnalyticsPage = () => (
-  <div>
-    <Title level={2}>Analitika</Title>
-    <p>Analitika ma'lumotlari bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const TeamPage = () => (
-  <div>
-    <Title level={2}>Jamoa</Title>
-    <p>Jamoa a'zolari bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const SettingsPage = () => (
-  <div>
-    <Title level={2}>Sozlamalar</Title>
-    <p>Tizim sozlamalari bu yerda ko'rsatiladi.</p>
   </div>
 );
 
@@ -393,12 +347,7 @@ function AppLayout() {
                   <Route path="/map" element={<MapPage />} />
                   <Route path="/xorazm" element={<XorazmPage />} />
                   <Route path="/andijon" element={<AndijonPage />} />
-                  <Route path="/users" element={<UsersPage />} />
-                  <Route path="/posts" element={<PostsPage />} />
-                  <Route path="/muammolar" element={<ProblemsPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/team" element={<TeamPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/station/:id" element={<StationDetail />} />
                 </Routes>
               </Content>
             </div>

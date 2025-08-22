@@ -3,14 +3,24 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://metro-site.onrender.com/api/",
+    baseUrl: "https://reklamaproject.onrender.com/api",
+    credentials: "include", // agar backend cookie/CSRFlik bo‘lsa foydali
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("marketing1");
+      if (token) {
+        // Backendga qarab quyidagini tanlang:
+        headers.set("Authorization", `Bearer ${token}`); // ko‘pincha shunday
+        // headers.set("Authorization", `Token ${token}`); // agar DRF TokenAuth bo‘lsa
+      }
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
-    getPosts: builder.query({
-      query: () => "comments",
+    getStation: builder.query({
+      query: (id) => `stations/${id}`,
     }),
   }),
 });
 
 // Hooklarni avtomat yaratadi:
-export const { useGetPostsQuery } = api;
+export const { useGetStationQuery } = api;
