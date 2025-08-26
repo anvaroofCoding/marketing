@@ -7,6 +7,7 @@ import {
   Route,
   useLocation,
   useNavigate,
+  Link,
 } from "react-router-dom";
 import logo from "./assets/logo2.png";
 import LoginPage from "./auth/login";
@@ -32,6 +33,7 @@ import {
 } from "antd";
 import TashkentMetroMap from "./components/newMapMertopoliten";
 import StationDetail from "./components/StationDetail";
+import Positions from "./components/positions";
 
 const { Content, Sider, Header } = Layout;
 const { Title } = Typography;
@@ -162,7 +164,7 @@ function AppLayout() {
     if (!marketing1) return;
 
     try {
-      const check = await fetch("https://2abfcea964d1.ngrok-free.app/api/me/", {
+      const check = await fetch("http://192.168.10.41:9000/api/me/", {
         headers: {
           Authorization: `Bearer ${marketing1}`,
         },
@@ -234,18 +236,20 @@ function AppLayout() {
                 marginBottom: "16px",
               }}
             >
-              <div className="flex justify-center items-center w-full gap-2">
-                <img
-                  src={logo || "/placeholder.svg"}
-                  alt="marketing metro logo"
-                  className="w-[40px]"
-                />
-                {!collapsed && (
-                  <h3 className="text-2xl font-bold text-blue-500">
-                    Marketing
-                  </h3>
-                )}
-              </div>
+              <Link to="/">
+                <div className="flex justify-center items-center w-full gap-2">
+                  <img
+                    src={logo || "/placeholder.svg"}
+                    alt="marketing metro logo"
+                    className="w-[40px]"
+                  />
+                  {!collapsed && (
+                    <h3 className="text-2xl font-bold text-blue-500">
+                      Marketing
+                    </h3>
+                  )}
+                </div>
+              </Link>
             </div>
 
             <Menu
@@ -336,6 +340,10 @@ function AppLayout() {
                   <Route path="/andijon" element={<AndijonPage />} />
                   <Route path="/station/:id" element={<StationDetail />} />
                   <Route path="/station/:id" element={<StationDetail />} />
+                  <Route
+                    path="/station/:id/position/:ids"
+                    element={<Positions />}
+                  />
                 </Routes>
               </Content>
             </div>

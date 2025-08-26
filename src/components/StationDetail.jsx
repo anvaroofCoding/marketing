@@ -1,8 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
+  useCreatePositionMutation,
   useDeletePositionMutation,
   useGetPositionsByStationQuery,
   useGetStationQuery,
+  useUpdatePositionMutation,
 } from "../services/api";
 import {
   Button,
@@ -14,6 +16,7 @@ import {
   Table,
   notification,
   Tooltip,
+  Popconfirm,
 } from "antd";
 import { useState } from "react";
 import {
@@ -29,6 +32,10 @@ export default function StationDetail() {
   const [value, setValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
+  const [inputValue, setInputValue] = useState("");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const navigate = useNavigate();
 
   const { id } = useParams();
 
@@ -56,29 +63,41 @@ export default function StationDetail() {
   } = useGetPositionsByStationQuery({
     stationId: id,
     page: currentPage,
-    limit: pageSize, // ✅ backend limit param kutyapti
+    limit: pageSize,
+    search: value, // ✅ backend limit param kutyapti
   });
+
+  // position qoshish
+  const [createPosition, { isLoading: createLoding, error: createError }] =
+    useCreatePositionMutation();
 
   const [deletePosition, { isLoading: deleteLoading }] =
     useDeletePositionMutation();
 
+  const [updatePosition, { isLoading: updateLoading }] =
+    useUpdatePositionMutation();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  if (positionsLoading || stationLoading)
+  if (positionsLoading || stationLoading || createLoding || updateLoading)
     return (
       <div className="w-full h-[100%] flex justify-center items-center">
         <Spin size="large" />
       </div>
     );
 
-  if (Iserr || Eserr) return <p>Xatolik yuz berdi!</p>;
+  if (Iserr || Eserr) {
+    openNotification("error", "Sahifani yangilang");
+  }
+  if (createError) {
+    openNotification(
+      "error",
+      "Bunday positsiya mavjuda iltimos raqamni boshqa qo'ying"
+    );
+  }
 
   const showModal = () => {
     setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
   };
 
   const handleCancel = () => {
@@ -88,14 +107,41 @@ export default function StationDetail() {
   const handleDelete = async (ids) => {
     try {
       await deletePosition(ids).unwrap();
-      openNotification("success", "O‘chirildi ✅");
+
+      // o'chirilgandan keyin sahifa bo'shab qolmasligi uchun
+      if (positions?.results?.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
+
+      openNotification("success", "Muvaffaqiyatli o'chirildi");
     } catch (error) {
       openNotification("error", `${error}`);
     }
   };
 
-  console.log(positions);
+  const handleOk = async () => {
+    try {
+      await createPosition({
+        station_id: id, // qaysi stansiya bo‘lsa
+        number: inputValue, // formdan kelgan qiymat
+      }).unwrap();
 
+      notification.success({ message: "Positsiya qo‘shildi" });
+      setIsModalOpen(false);
+    } catch (err) {
+      notification.error({ message: "Xatolik", description: err.toString() });
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await updatePosition({ id: editingId, number: inputValue }).unwrap();
+      notification.success({ message: "Muvaffaqiyatli tahrirlandi" });
+      setIsEditModalOpen(false);
+    } catch (error) {
+      notification.error({ message: error });
+    }
+  };
   return (
     <div className="w-full h-full">
       {contextHolder}
@@ -112,17 +158,51 @@ export default function StationDetail() {
           }}
         />
         <Button variant="solid" color="primary" onClick={showModal}>
-          Reklama qo'shish
+          Joy qo'shish
         </Button>
+
+        {/* qo'shish */}
         <Modal
-          title="Basic Modal"
+          title="Yangi Position qo‘shish"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
+          confirmLoading={createLoding}
+          footer={[
+            <Button key="back" onClick={handleCancel}>
+              Bekor qilish
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={createLoding}
+              onClick={handleOk}
+            >
+              Qo‘shish
+            </Button>,
+          ]}
         >
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Position raqamini kiriting"
+            type="number"
+          />
+        </Modal>
+
+        {/* tahrirlash */}
+        <Modal
+          title="Pozitsiyani tahrirlash"
+          open={isEditModalOpen}
+          onOk={handleUpdate}
+          onCancel={() => setIsEditModalOpen(false)}
+          confirmLoading={updateLoading}
+        >
+          <Input
+            placeholder="Number kiriting"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
         </Modal>
       </div>
 
@@ -133,7 +213,7 @@ export default function StationDetail() {
           pagination={{
             current: currentPage,
             pageSize,
-            total: positions?.count || 0, // ✅ backend count qaytaradi
+            total: positions?.count || 0,
             onChange: (page, pageSize) => {
               setCurrentPage(page);
               setPageSize(pageSize);
@@ -152,11 +232,11 @@ export default function StationDetail() {
                 <Button
                   type="primary"
                   style={{
-                    backgroundColor: status ? "green" : "red",
-                    borderColor: status ? "green" : "red",
+                    backgroundColor: status ? "red" : "green",
+                    borderColor: status ? "red" : "green",
                   }}
                 >
-                  {status ? "Bo'sh" : "Band"}
+                  {status ? "Band" : "Bo'sh"}
                 </Button>
               )}
             />
@@ -169,6 +249,7 @@ export default function StationDetail() {
                     <Button
                       type="primary"
                       style={{ background: "green", borderColor: "green" }}
+                      onClick={() => navigate(`position/${record.id}`)}
                     >
                       <AppstoreAddOutlined />
                     </Button>
@@ -177,21 +258,27 @@ export default function StationDetail() {
                   <Tooltip title="Tahrirlash">
                     <Button
                       type="primary"
+                      onClick={() => {
+                        setInputValue(record.number); // mavjud qiymatni inputga tushiramiz
+                        setEditingId(record.id); // qaysi id tahrirlanayotganini saqlaymiz
+                        setIsEditModalOpen(true); // modalni ochamiz
+                      }}
                       style={{ background: "orange", borderColor: "orange" }}
                     >
                       <EditOutlined />
                     </Button>
                   </Tooltip>
-
                   <Tooltip title="O‘chirish">
-                    <Button
-                      danger
-                      type="primary"
-                      onClick={() => handleDelete(record.id)}
-                      loading={deleteLoading}
+                    <Popconfirm
+                      title="O‘chirishni tasdiqlaysizmi?"
+                      okText="Ha"
+                      cancelText="Yo‘q"
+                      onConfirm={() => handleDelete(record.id)}
                     >
-                      <DeleteOutlined />
-                    </Button>
+                      <Button danger type="primary" loading={deleteLoading}>
+                        <DeleteOutlined />
+                      </Button>
+                    </Popconfirm>
                   </Tooltip>
                 </Space>
               )}

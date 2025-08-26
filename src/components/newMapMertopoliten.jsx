@@ -20,7 +20,7 @@ export default function TashkentMetroMap() {
     const fetchStations = async () => {
       try {
         const response = await fetch(
-          "https://2abfcea964d1.ngrok-free.app/api/stations/",
+          "http://192.168.10.41:9000/api/stations/",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("marketing1")}`,
