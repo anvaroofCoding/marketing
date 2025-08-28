@@ -20,7 +20,6 @@ export const api = createApi({
     getStation: builder.query({
       query: (id) => `/stations/${id}/`,
     }),
-
     // stansiyaga tegishli positionlarni olish
     getPositionsByStation: builder.query({
       query: ({ stationId, page = 1, limit = 10, search = "" }) => {
@@ -32,9 +31,7 @@ export const api = createApi({
       },
       providesTags: ["Positions"],
     }),
-
     // position qo‘shish
-
     createPosition: builder.mutation({
       query: (body) => ({
         url: `/positions/`,
@@ -52,7 +49,6 @@ export const api = createApi({
       }),
       invalidatesTags: ["Positions"],
     }),
-
     // position o‘chirish
     deletePosition: builder.mutation({
       query: (id) => ({
@@ -63,7 +59,7 @@ export const api = createApi({
     }),
 
     getAdvent: builder.query({
-      query: () => "advertisements",
+      query: () => "/advertisements/",
     }),
 
     createAdvent: builder.mutation({
@@ -89,11 +85,58 @@ export const api = createApi({
         method: "DELETE",
       }),
     }),
+    postPdf: builder.mutation({
+      query: ({ id, file }) => {
+        const formData = new FormData();
+        formData.append("schema_image", file); // 🔑 backend kutilayotgan field nomi
+
+        return {
+          url: `/stations/${id}/update-image/`,
+          method: "PUT",
+          body: formData,
+        };
+      },
+    }),
+    // arviv
+    getArchive: builder.query({
+      query: ({ page = 1, limit = 7, search = "" }) => ({
+        url: `/advertisements-archive/`,
+        params: { page, limit, search },
+      }),
+    }),
+    getShowArchive: builder.query({
+      query: (ida) => ({
+        url: `/advertisements-archive/${ida}/`,
+      }),
+    }),
+    getArchiveExcel: builder.query({
+      query: () => ({
+        url: "/advertisements/export-excel/",
+        responseHandler: async (response) => {
+          const blob = await response.blob();
+          return blob;
+        },
+      }),
+    }),
+    getArchiveShowExcel: builder.query({
+      query: () => ({
+        url: "/advertisements-archive/export-excel/",
+        responseHandler: async (response) => {
+          const blob = await response.blob();
+          return blob;
+        },
+      }),
+    }),
   }),
 });
 
 // Hooklar
 export const {
+  useGetArchiveShowExcelQuery,
+  useGetArchiveExcelQuery,
+  useGetShowArchiveQuery,
+  useGetArchiveQuery,
+  usePostPdfMutation,
   useCreateAdventMutation,
   useCreatePositionMutation,
   useGetStationQuery,

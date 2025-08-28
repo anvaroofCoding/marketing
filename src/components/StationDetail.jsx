@@ -1,52 +1,54 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   useCreatePositionMutation,
   useDeletePositionMutation,
+  useGetArchiveExcelQuery,
   useGetPositionsByStationQuery,
   useGetStationQuery,
+  usePostPdfMutation,
   useUpdatePositionMutation,
 } from "../services/api";
 import {
   Button,
-  Image,
   Input,
   Modal,
   Spin,
   Space,
   Table,
-  notification,
   Tooltip,
   Popconfirm,
+  Upload,
+  notification,
 } from "antd";
 import { useState } from "react";
 import {
   AppstoreAddOutlined,
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
+  FileExcelOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 
 const { Column, ColumnGroup } = Table;
 
 export default function StationDetail() {
-  const [api, contextHolder] = notification.useNotification();
+  notification.config({
+    placement: "top", // yuqorida chiqadi
+    duration: 3, // nechchi soniyada yopiladi
+  });
   const [value, setValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
   const [inputValue, setInputValue] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  // const [file, setFile] = useState(null);
   const navigate = useNavigate();
 
   const { id } = useParams();
-
-  const openNotification = (type, message, description) => {
-    api[type]({
-      message,
-      description,
-      placement: "bottomRight",
-      duration: 2,
-    });
-  };
 
   // stationni olish
   const {
@@ -60,11 +62,12 @@ export default function StationDetail() {
     data: positions,
     isLoading: positionsLoading,
     error: Eserr,
+    refetch,
   } = useGetPositionsByStationQuery({
     stationId: id,
     page: currentPage,
     limit: pageSize,
-    search: value, // ✅ backend limit param kutyapti
+    search: value,
   });
 
   // position qoshish
@@ -77,6 +80,12 @@ export default function StationDetail() {
   const [updatePosition, { isLoading: updateLoading }] =
     useUpdatePositionMutation();
 
+  const [postPdf] = usePostPdfMutation();
+
+  const { data: excelBlob, isFetching } = useGetArchiveExcelQuery();
+
+  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (positionsLoading || stationLoading || createLoding || updateLoading)
@@ -87,13 +96,17 @@ export default function StationDetail() {
     );
 
   if (Iserr || Eserr) {
-    openNotification("error", "Sahifani yangilang");
+    notification.error({ message: "Sahifani yangilang" });
   }
+
+  // if (updeteposision) {
+  //   notification.error({ message: "Siz mavjud bo'lgan raqamni yozyapsiz!" });
+  // }
+
   if (createError) {
-    openNotification(
-      "error",
-      "Bunday positsiya mavjuda iltimos raqamni boshqa qo'ying"
-    );
+    notification.error({
+      message: "Bunday positsiya mavjud iltimos raqamni boshqa qo'ying",
+    });
   }
 
   const showModal = () => {
@@ -113,9 +126,9 @@ export default function StationDetail() {
         setCurrentPage(currentPage - 1);
       }
 
-      openNotification("success", "Muvaffaqiyatli o'chirildi");
+      notification.success({ message: "Muvaffaqiyatli o'chirildi" });
     } catch (error) {
-      openNotification("error", `${error}`);
+      notification.error({ message: `${error}` });
     }
   };
 
@@ -129,7 +142,10 @@ export default function StationDetail() {
       notification.success({ message: "Positsiya qo‘shildi" });
       setIsModalOpen(false);
     } catch (err) {
-      notification.error({ message: "Xatolik", description: err.toString() });
+      notification.error({
+        message: "Xatolik",
+        description: err.toString(),
+      });
     }
   };
 
@@ -139,27 +155,100 @@ export default function StationDetail() {
       notification.success({ message: "Muvaffaqiyatli tahrirlandi" });
       setIsEditModalOpen(false);
     } catch (error) {
-      notification.error({ message: error });
+      notification.error({ message: `${error}` });
     }
   };
+
+  const handleChange = async (info) => {
+    const file = info.file; // faqat faylni olamiz
+
+    if (!file) return;
+
+    try {
+      await postPdf({ id, file }).unwrap();
+      notification.success({
+        message: "PDF muvaffaqiyatli yangilandi!",
+        description: "Sahifani yangilang",
+      });
+      refetch();
+    } catch (err) {
+      console.error("Xato:", err);
+      notification.error({ message: "PDF yangilashda xatolik yuz berdi!" });
+    }
+  };
+
+  function handleDownloads() {
+    if (!excelBlob) return;
+
+    // Blob'ni browserga yuklab olishga tayyorlash
+    const url = window.URL.createObjectURL(excelBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "reklamalar.xlsx"); // Fayl nomi
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url); // Me
+    notification.success({ message: "Excel muvaffaqiyatli ko'chirildi" });
+  }
+  // console.log(station);
   return (
     <div className="w-full h-full">
-      {contextHolder}
       <div className="h-[15%] w-full flex justify-between items-center">
-        <div>
-          <Image width={150} src={station?.schema_image} />
+        <div className="flex gap-5">
+          <Link to={station.schema_image} target="_blank">
+            <Button type="primary" icon={<EyeOutlined />}>
+              Bekat chizmasi
+            </Button>
+          </Link>
+          <Upload
+            accept=".pdf"
+            showUploadList={false}
+            beforeUpload={() => false} // avtomatik yuklashni bloklaydi
+            onChange={handleChange}
+          >
+            <Button variant="solid" color="orange" icon={<UploadOutlined />}>
+              PDF yangilash
+            </Button>
+          </Upload>
+          <Button
+            variant="solid"
+            color="green"
+            icon={<FileExcelOutlined />}
+            onClick={handleDownloads}
+            loading={isFetching}
+            disabled={!excelBlob}
+          >
+            Excel ko'chirish
+          </Button>
         </div>
-        <Input
+        {/* <Input
           placeholder="Qidiruv"
           style={{ width: 400 }}
           value={value}
           onChange={(e) => {
             setValue(e.target.value); // qiymatni olish
           }}
-        />
-        <Button variant="solid" color="primary" onClick={showModal}>
-          Joy qo'shish
-        </Button>
+        /> */}
+        <div className="flex items-center gap-5">
+          <Input
+            placeholder="Qidirish..."
+            prefix={<SearchOutlined />}
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value); // qiymatni olish
+            }}
+            style={{ width: "250px" }}
+          />
+          <Button
+            variant="solid"
+            color="primary"
+            onClick={showModal}
+            icon={<PlusOutlined />}
+          >
+            Joy qo'shish
+          </Button>
+        </div>
 
         {/* qo'shish */}
         <Modal
@@ -272,6 +361,7 @@ export default function StationDetail() {
                     <Popconfirm
                       title="O‘chirishni tasdiqlaysizmi?"
                       okText="Ha"
+                      okType="danger"
                       cancelText="Yo‘q"
                       onConfirm={() => handleDelete(record.id)}
                     >

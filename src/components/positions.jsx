@@ -24,12 +24,21 @@ import {
   useGetAdventQuery,
   useUpdateAdventMutation,
 } from "../services/api";
-import { EditOutlined, CopyOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  CopyOutlined,
+  UploadOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useState } from "react";
 import moment from "moment";
 
 export default function AdvertisementDetail() {
   const { ids } = useParams();
+  notification.config({
+    placement: "top", // yuqorida chiqadi
+    duration: 3, // nechchi soniyada yopiladi
+  });
 
   const {
     data,
@@ -116,14 +125,12 @@ export default function AdvertisementDetail() {
         await updateAdvent({ id: reklama.id, formData }).unwrap();
         notification.success({
           message: "Muvaffaqiyatli yangilandi",
-          placement: "bottomRight",
         });
       } else {
         // Yangi reklama qo'shish
         await createAdvent(formData).unwrap();
         notification.success({
           message: "Muvaffaqiyatli qo'shildi",
-          placement: "bottomRight",
         });
       }
 
@@ -141,7 +148,6 @@ export default function AdvertisementDetail() {
       await deleteAdvent(id).unwrap(); // unwrap xatolikni catch bilan olish imkonini beradi
       notification.success({
         message: "Reklama o'chirildi",
-        placement: "bottomRight",
       });
       // agar kerak bo‘lsa, so‘nggi ma’lumotni qayta yuklash
       refetch();
@@ -150,7 +156,6 @@ export default function AdvertisementDetail() {
       notification.error({
         message: "Xatolik yuz berdi",
         description: err?.data?.message || JSON.stringify(err),
-        placement: "bottomRight",
       });
     }
   };
@@ -264,7 +269,11 @@ export default function AdvertisementDetail() {
               title="Reklama bo'sh bo'lsa qo'shishingiz mumkin"
               color="blue"
             >
-              <Button type="primary" onClick={handleOpen}>
+              <Button
+                type="primary"
+                onClick={handleOpen}
+                icon={<PlusOutlined />}
+              >
                 Reklama qo'shish
               </Button>
             </Tooltip>

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Button,
   Form,
@@ -6,10 +8,13 @@ import {
   Typography,
   notification,
   ConfigProvider,
+  Space,
+  Divider,
 } from "antd";
 import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useState } from "react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
@@ -47,7 +52,7 @@ export default function Login() {
         navigate("/");
       }
     } catch (error) {
-      openNotification("error", "Diqqat!", "Login yoki parol noto‘g‘ri!");
+      openNotification("error", "Diqqat!", "Login yoki parol noto'g'ri!");
       console.log(error);
     }
   };
@@ -75,79 +80,173 @@ export default function Login() {
     }, 3000);
   };
 
+  const customTheme = {
+    zIndexPopupBase: 2000,
+    token: {
+      colorPrimary: "#3b82f6",
+      colorPrimaryHover: "#2563eb",
+      borderRadius: 12,
+      fontSize: 16,
+    },
+    components: {
+      Input: {
+        colorBorder: "#d1d5db",
+        colorBorderHover: "#3b82f6",
+        colorBorderFocus: "#3b82f6",
+        controlHeight: 48,
+        paddingInline: 16,
+        fontSize: 16,
+      },
+      Button: {
+        controlHeight: 48,
+        fontSize: 16,
+        fontWeight: 600,
+      },
+      Card: {
+        borderRadiusLG: 20,
+        paddingLG: 32,
+      },
+    },
+  };
+
   return (
-    <ConfigProvider theme={{ zIndexPopupBase: 2000 }}>
-      {/* 👉 Notification contextHolder eng tepada turishi kerak */}
+    <ConfigProvider theme={customTheme}>
       {contextHolder}
-      <div className="min-h-screen bg-gray-200 flex justify-center items-center p-4">
-        <Card
-          className="w-full max-w-md shadow-2xl border-0"
-          style={{
-            borderRadius: "16px",
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <img src="/logo2.png" alt="marketing metro logo" />
-            </div>
-            <Title level={2} className="mb-2 text-gray-800">
-              Metropoliten marketing
-            </Title>
-            <Text type="secondary" className="text-base">
-              Iltimos login va parolingizni yozing
-            </Text>
-          </div>
+      <div className="min-h-screen flex">
+        <div className="flex justify-center items-center h-screen w-[50%] bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <DotLottieReact
+            src="https://lottie.host/083f29b6-81fd-4e1f-8768-07e84d31dd07/NLgsDNcsqX.lottie"
+            loop
+            autoplay
+            className="w-[80%] relative z-10"
+          />
+        </div>
 
-          <Form
-            name="login"
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-            layout="vertical"
-            size="large"
+        <div className="flex justify-center items-center h-screen w-[50%] bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+          <Card
+            className="w-full max-w-md shadow-2xl border-0 relative"
+            style={{
+              borderRadius: "20px",
+              background: "rgba(255, 255, 255, 0.98)",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
+            }}
           >
-            <Form.Item
-              name="username"
-              rules={[
-                { required: true, message: "Please input your username!" },
-              ]}
-            >
-              <Input
-                prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="Username"
-                className="rounded-lg"
-              />
-            </Form.Item>
+            <div className="text-center mb-10">
+              <Space direction="vertical" size="large" className="w-full">
+                <div className="w-20 h-20 flex items-center justify-center mx-auto bg-blue-50 rounded-full p-3">
+                  <img
+                    src="/logo2.png"
+                    alt="marketing metro logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div>
+                  <Title
+                    level={2}
+                    className="mb-2 text-gray-800 font-bold"
+                    style={{ fontSize: "28px", marginBottom: "8px" }}
+                  >
+                    Metropoliten Marketing
+                  </Title>
+                  <Text type="secondary" className="text-lg font-medium">
+                    Marketing dasturi uchun kirish
+                  </Text>
+                </div>
+              </Space>
+            </div>
 
-            <Form.Item
-              name="password"
-              rules={[
-                { required: true, message: "Please input your password!" },
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="Password"
-                className="rounded-lg"
-              />
-            </Form.Item>
+            <Divider className="mb-8" style={{ borderColor: "#e5e7eb" }} />
 
-            <Form.Item className="mb-6">
-              <Button
-                loading={loadings[0]}
-                onClick={() => enterLoading(0)}
-                type="primary"
-                htmlType="submit"
-                className="w-full h-12 rounded-lg bg-blue-500 hover:bg-blue-600 border-0 text-base font-medium"
-                icon={<LoginOutlined />}
+            <Form
+              name="login"
+              onFinish={onFinish}
+              onFinishFailed={onFinishFailed}
+              autoComplete="off"
+              layout="vertical"
+              size="large"
+              className="space-y-6"
+            >
+              <Form.Item
+                label={
+                  <Text strong className="text-gray-700 text-base">
+                    Foydalanuvchi nomi
+                  </Text>
+                }
+                name="username"
+                rules={[
+                  {
+                    required: true,
+                    message: "Iltimos foydalanuvchi nomini kiriting!",
+                  },
+                ]}
+                className="mb-6"
               >
-                Sign In
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
+                <Input
+                  prefix={<UserOutlined className="text-blue-500 text-lg" />}
+                  placeholder="Foydalanuvchi nomini kiriting"
+                  className="rounded-xl border-2 hover:border-blue-400 focus:border-blue-500 transition-all duration-200"
+                  style={{
+                    fontSize: "16px",
+                    padding: "12px 16px",
+                    height: "48px",
+                  }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <Text strong className="text-gray-700 text-base">
+                    Parol
+                  </Text>
+                }
+                name="password"
+                rules={[
+                  { required: true, message: "Iltimos parolni kiriting!" },
+                ]}
+                className="mb-8"
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-blue-500 text-lg" />}
+                  placeholder="Parolni kiriting"
+                  className="rounded-xl border-2 hover:border-blue-400 focus:border-blue-500 transition-all duration-200"
+                  style={{
+                    fontSize: "16px",
+                    padding: "12px 16px",
+                    height: "48px",
+                  }}
+                />
+              </Form.Item>
+
+              <Form.Item className="mb-0">
+                <Button
+                  loading={loadings[0]}
+                  onClick={() => enterLoading(0)}
+                  type="primary"
+                  htmlType="submit"
+                  className="w-full rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+                  icon={<LoginOutlined className="text-lg" />}
+                  style={{
+                    height: "52px",
+                    background:
+                      "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                    border: "none",
+                    fontSize: "16px",
+                  }}
+                >
+                  Tizimga Kirish
+                </Button>
+              </Form.Item>
+            </Form>
+
+            <div className="text-center mt-8 pt-6 border-t border-gray-100">
+              <Text type="secondary" className="text-sm">
+                Marketing dasturi - Metropoliten © 2025
+              </Text>
+            </div>
+          </Card>
+        </div>
       </div>
     </ConfigProvider>
   );

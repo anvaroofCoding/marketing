@@ -19,6 +19,9 @@ import {
   MenuUnfoldOutlined,
   LogoutOutlined,
   GlobalOutlined,
+  SnippetsOutlined,
+  AimOutlined,
+  FieldTimeOutlined,
 } from "@ant-design/icons";
 import {
   Breadcrumb,
@@ -34,6 +37,10 @@ import {
 import TashkentMetroMap from "./components/newMapMertopoliten";
 import StationDetail from "./components/StationDetail";
 import Positions from "./components/positions";
+import Archive from "./components/archive";
+import ShowArchive from "./components/show-archive";
+import Week from "./pages/week";
+import Term from "./pages/term";
 
 const { Content, Sider, Header } = Layout;
 const { Title } = Typography;
@@ -57,21 +64,26 @@ const AndijonPage = () => (
 const menuItems = [
   {
     key: "/",
-    icon: <HomeOutlined />,
+    icon: <AimOutlined />,
     label: "Xarita",
   },
   {
-    key: "ilovalar",
-    icon: <AppstoreOutlined />,
-    label: "Ilovalar",
+    key: "/archive/main/",
+    icon: <SnippetsOutlined />,
+    label: "Arxiv",
+  },
+  {
+    key: "/kechikishlar/",
+    icon: <FieldTimeOutlined />,
+    label: "Kechikishlar",
     children: [
       {
-        key: "/xorazm",
-        label: "Xorazm",
+        key: "/kechikishlar/7kunlik/",
+        label: "7 Kunlik",
       },
       {
-        key: "/andijon",
-        label: "Andijon",
+        key: "/kechikishlar/tugagan/",
+        label: "Muddati tugagan",
       },
     ],
   },
@@ -344,6 +356,10 @@ function AppLayout() {
                     path="/station/:id/position/:ids"
                     element={<Positions />}
                   />
+                  <Route path="/archive/main/" element={<Archive />} />
+                  <Route path="/archive-show/:ida/" element={<ShowArchive />} />
+                  <Route path="/kechikishlar/7kunlik/" element={<Week />} />
+                  <Route path="/kechikishlar/tugagan/" element={<Term />} />
                 </Routes>
               </Content>
             </div>
