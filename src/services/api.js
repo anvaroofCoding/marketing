@@ -99,7 +99,7 @@ export const api = createApi({
     }),
     // arviv
     getArchive: builder.query({
-      query: ({ page = 1, limit = 7, search = "" }) => ({
+      query: ({ page = 1, limit = 9, search = "" }) => ({
         url: `/advertisements-archive/`,
         params: { page, limit, search },
       }),
@@ -127,11 +127,74 @@ export const api = createApi({
         },
       }),
     }),
+    getTime: builder.query({
+      query: ({ page = 1, limit = 9, search = "" }) => ({
+        url: `/tugashi-advertisements/`,
+        params: { page, limit, search },
+      }),
+    }),
+    getTimeTugagan: builder.query({
+      query: (id) => ({
+        url: `/tugashi-advertisements/${id}/`,
+      }),
+    }),
+    getTugaganExcel: builder.query({
+      query: () => ({
+        url: "tugashi-advertisements/export-expired-excel/",
+        responseHandler: async (response) => {
+          const blob = await response.blob();
+          return blob;
+        },
+      }),
+    }),
+    getWeekExcel: builder.query({
+      query: () => ({
+        url: "tugashi-advertisements/export-week-excel/",
+        responseHandler: async (response) => {
+          const blob = await response.blob();
+          return blob;
+        },
+      }),
+    }),
+    getDelays: builder.query({
+      query: () => ({
+        url: "tugashi-advertisements/",
+      }),
+    }),
+    getSearchs: builder.query({
+      query: ({ page, limit, search }) => ({
+        url: "/all-advertisements/",
+        params: { page, limit, search },
+      }),
+    }),
+    getSearchsId: builder.query({
+      query: (ida) => ({
+        url: `/all-advertisements/${ida}/`,
+      }),
+    }),
+    getSearchExcel: builder.query({
+      query: ({ search }) => ({
+        url: "/all-advertisements/export-excel/",
+        responseHandler: async (response) => {
+          const blob = await response.blob();
+          return blob;
+        },
+        params: { search },
+      }),
+    }),
   }),
 });
 
 // Hooklar
 export const {
+  useGetSearchExcelQuery,
+  useGetSearchsIdQuery,
+  useGetSearchsQuery,
+  useGetDelaysQuery,
+  useGetWeekExcelQuery,
+  useGetTugaganExcelQuery,
+  useGetTimeTugaganQuery,
+  useGetTimeQuery,
   useGetArchiveShowExcelQuery,
   useGetArchiveExcelQuery,
   useGetShowArchiveQuery,

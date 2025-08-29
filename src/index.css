@@ -1,1 +1,16 @@
 @import "tailwindcss";
+.custom-menu .ant-menu-item {
+  color: #fff !important;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.custom-menu .ant-menu-item-selected {
+  color: #4096ff !important;
+  font-weight: bold;
+}
+
+.ant-menu-submenu .ant-menu-submenu-arrow {
+  color: white !important; /* oq rang */
+  font-size: 14px; /* o‘lchamini ham o‘zgartirsa bo‘ladi */
+}

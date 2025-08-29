@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
@@ -9,19 +7,17 @@ import {
   useNavigate,
   Link,
 } from "react-router-dom";
-import logo from "./assets/logo2.png";
+import logo from "./assets/logos.png";
 import LoginPage from "./auth/login";
 import {
-  HomeOutlined,
-  AppstoreOutlined,
-  BugOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
-  GlobalOutlined,
   SnippetsOutlined,
   AimOutlined,
   FieldTimeOutlined,
+  BellOutlined,
+  FileSearchOutlined,
 } from "@ant-design/icons";
 import {
   Breadcrumb,
@@ -29,10 +25,10 @@ import {
   Menu,
   theme,
   notification,
-  Typography,
   Button,
   Dropdown,
   Spin,
+  Badge,
 } from "antd";
 import TashkentMetroMap from "./components/newMapMertopoliten";
 import StationDetail from "./components/StationDetail";
@@ -41,66 +37,74 @@ import Archive from "./components/archive";
 import ShowArchive from "./components/show-archive";
 import Week from "./pages/week";
 import Term from "./pages/term";
+import Weekdaitail from "./pages/weekDatails";
+// import { useTranslation } from "react-i18next";
+import Test from "./test/test";
+import { useGetDelaysQuery } from "./services/api";
+import Allsearch from "./components/allSearch";
+import AllSearchDetails from "./components/allSearchdetails";
 
 const { Content, Sider, Header } = Layout;
-const { Title } = Typography;
 
 const MapPage = () => <TashkentMetroMap />;
 
-const XorazmPage = () => (
-  <div>
-    <Title level={2}>Xorazm</Title>
-    <p>Xorazm viloyati ma'lumotlari bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const AndijonPage = () => (
-  <div>
-    <Title level={2}>Andijon</Title>
-    <p>Andijon viloyati ma'lumotlari bu yerda ko'rsatiladi.</p>
-  </div>
-);
-
-const menuItems = [
-  {
-    key: "/",
-    icon: <AimOutlined />,
-    label: "Xarita",
-  },
-  {
-    key: "/archive/main/",
-    icon: <SnippetsOutlined />,
-    label: "Arxiv",
-  },
-  {
-    key: "/kechikishlar/",
-    icon: <FieldTimeOutlined />,
-    label: "Kechikishlar",
-    children: [
-      {
-        key: "/kechikishlar/7kunlik/",
-        label: "7 Kunlik",
-      },
-      {
-        key: "/kechikishlar/tugagan/",
-        label: "Muddati tugagan",
-      },
-    ],
-  },
-];
-
 function AppLayout() {
+  // 🔹 States
   const [marketing1, setMarketing1] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [api, contextHolder] = notification.useNotification();
   const [collapsed, setCollapsed] = useState(false);
-  const [language, setLanguage] = useState("uz");
+  const [openKeys, setOpenKeys] = useState([]);
+  // const [language, setLanguage] = useState(
+  //   localStorage.getItem("lang") || "uz"
+  // );
+
+  // 🔹 Router & Translate
   const location = useLocation();
   const navigate = useNavigate();
+  // const { i18n } = useTranslation();
 
+  // 🔹 Notification
+  const [api, contextHolder] = notification.useNotification();
+
+  // 🔹 RTK Query
   const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+    data: delays,
+    isLoading: delysLaoding,
+    // error: delayasError,
+  } = useGetDelaysQuery();
+
+  // // 🔹 Effects
+  // useEffect(() => {
+  //   i18n.changeLanguage(language);
+  // }, [language, i18n]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("marketing1");
+      setMarketing1(token);
+      setIsLoading(false);
+    }
+  }, []);
+
+  const onOpenChange = (keys) => {
+    setOpenKeys(keys);
+  };
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!marketing1) {
+      navigate("/login");
+    } else {
+      checkToken();
+    }
+  }, [marketing1, isLoading]);
+
+  // // 🔹 Functions
+  // const handleLanguageChange = ({ key }) => {
+  //   setLanguage(key);
+  //   i18n.changeLanguage(key);
+  //   localStorage.setItem("lang", key);
+  // };
 
   const openNotification = (type, message, description) => {
     api[type]({
@@ -127,32 +131,6 @@ function AppLayout() {
       navigate("/login");
     }
   };
-
-  const handleLanguageChange = ({ key }) => {
-    setLanguage(key);
-    openNotification(
-      "success",
-      "Til o'zgartirildi",
-      `Til ${
-        key === "uz" ? "O'zbek" : key === "ru" ? "Rus" : "Ingliz"
-      } tiliga o'zgartirildi`
-    );
-  };
-
-  const languageItems = [
-    {
-      key: "uz",
-      label: "O'zbek",
-    },
-    {
-      key: "ru",
-      label: "Русский",
-    },
-    {
-      key: "en",
-      label: "English",
-    },
-  ];
 
   const getCurrentPageLabel = () => {
     const currentItem = menuItems.find((item) => {
@@ -196,25 +174,13 @@ function AppLayout() {
     }
   }
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("marketing1");
-      setMarketing1(token);
-      setIsLoading(false);
-    }
-  }, []);
+  // 🔹 Theme
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
 
-  useEffect(() => {
-    if (isLoading) return;
-
-    if (!marketing1) {
-      navigate("/login");
-    } else {
-      checkToken();
-    }
-  }, [marketing1, isLoading]);
-
-  if (isLoading) {
+  // 🔹 Loading States
+  if (delysLaoding || isLoading) {
     return (
       <div className="w-full h-[100vh] flex justify-center items-center">
         <Spin size="large" />
@@ -222,20 +188,125 @@ function AppLayout() {
     );
   }
 
+  // 🔹 Delay Stats
+  const delayStats = {
+    sevenDays: delays?.counts?.haftada_tugaydigan,
+    expired: delays?.counts?.tugagan,
+  };
+
+  // // 🔹 Menu Items
+  // const languageItems = [
+  //   {
+  //     key: "uz",
+  //     label: (
+  //       <span style={{ display: "flex", alignItems: "center" }}>
+  //         <ReactCountryFlag
+  //           countryCode="UZ"
+  //           svg
+  //           style={{
+  //             width: "20px",
+  //             height: "15px",
+  //             marginRight: "8px",
+  //           }}
+  //         />
+  //         O‘zbek
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     key: "ru",
+  //     label: (
+  //       <span style={{ display: "flex", alignItems: "center" }}>
+  //         <ReactCountryFlag
+  //           countryCode="RU"
+  //           svg
+  //           style={{
+  //             width: "20px",
+  //             height: "15px",
+  //             marginRight: "8px",
+  //           }}
+  //         />
+  //         Русский
+  //       </span>
+  //     ),
+  //   },
+  // ];
+
+  const menuItems = [
+    {
+      key: "/",
+      icon: <AimOutlined />,
+      label: "Xarita",
+    },
+    {
+      key: "/archive/main/",
+      icon: <SnippetsOutlined />,
+      label: "Arxiv",
+    },
+    {
+      key: "/umumiy-qidiruv/",
+      icon: <FileSearchOutlined />,
+      label: "Barcha reklamalar",
+    },
+    {
+      key: "/kechikishlar/",
+      icon: (
+        <span style={{ color: "white", fontWeight: "bold" }}>
+          <FieldTimeOutlined />
+        </span>
+      ),
+      label: (
+        <span style={{ color: "white", fontWeight: "bold" }}>Kechikishlar</span>
+      ),
+      children: [
+        {
+          key: "/kechikishlar/7kunlik/",
+          label: (
+            <div className="flex justify-between items-center">
+              7 Kunlik
+              <Badge
+                count={delayStats.sevenDays}
+                size="large"
+                style={{ backgroundColor: "#fa8c16", marginLeft: 8 }}
+              />
+            </div>
+          ),
+        },
+        {
+          key: "/kechikishlar/tugagan/",
+          label: (
+            <div className="flex justify-between items-center">
+              Muddati tugagan
+              <Badge
+                count={delayStats.expired}
+                size="large"
+                style={{ backgroundColor: "#f5222d", marginLeft: 8 }}
+              />
+            </div>
+          ),
+        },
+      ],
+    },
+  ];
+
+  // 🔹 Return
   return (
     <div>
       {contextHolder}
       <Layout style={{ minHeight: "100vh" }}>
         <Layout>
+          {/* Sidebar */}
           <Sider
             width={250}
             collapsible
             collapsed={collapsed}
             onCollapse={setCollapsed}
+            breakpoint="lg"
+            collapsedWidth="0"
             trigger={null}
             style={{
-              background: colorBgContainer,
               boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
+              background: "#1559e3",
             }}
           >
             <div
@@ -246,6 +317,7 @@ function AppLayout() {
                 justifyContent: "center",
                 borderBottom: "1px solid #f0f0f0",
                 marginBottom: "16px",
+                background: "#1559e3",
               }}
             >
               <Link to="/">
@@ -253,10 +325,10 @@ function AppLayout() {
                   <img
                     src={logo || "/placeholder.svg"}
                     alt="marketing metro logo"
-                    className="w-[40px]"
+                    className="w-[32px] md:w-[40px]"
                   />
                   {!collapsed && (
-                    <h3 className="text-2xl font-bold text-blue-500">
+                    <h3 className="text-xl md:text-2xl font-bold text-white">
                       Marketing
                     </h3>
                   )}
@@ -267,18 +339,24 @@ function AppLayout() {
             <Menu
               mode="inline"
               selectedKeys={[location.pathname]}
+              openKeys={openKeys}
+              onOpenChange={onOpenChange} // 🔑 qo‘shildi
+              className="custom-menu"
               style={{
                 height: "calc(100% - 80px)",
                 borderInlineEnd: 0,
                 fontSize: "14px",
+                background: "#1559e3",
               }}
               items={menuItems}
               onClick={handleMenuClick}
             />
           </Sider>
 
+          {/* Content */}
           <Layout style={{ padding: "0" }}>
             <Header
+              className="custom-menu"
               style={{
                 padding: "0 16px",
                 background: colorBgContainer,
@@ -286,6 +364,8 @@ function AppLayout() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 borderBottom: "1px solid #f0f0f0",
+                flexWrap: "wrap",
+                gap: "8px",
               }}
             >
               <Button
@@ -300,9 +380,15 @@ function AppLayout() {
               />
 
               <div
-                style={{ display: "flex", alignItems: "center", gap: "16px" }}
+                style={{ display: "flex", alignItems: "center", gap: "20px" }}
               >
-                <Dropdown
+                <Badge count={delays.counts.umumiy - 1} size="small">
+                  <BellOutlined
+                    style={{ fontSize: 24, cursor: "pointer" }}
+                    onClick={() => setOpenKeys(["/kechikishlar/"])}
+                  />
+                </Badge>
+                {/* <Dropdown
                   menu={{
                     items: languageItems,
                     onClick: handleLanguageChange,
@@ -310,36 +396,40 @@ function AppLayout() {
                   }}
                   placement="bottomRight"
                 >
-                  <Button type="text" icon={<GlobalOutlined />}>
+                  <Button type="primary">
+                    <ReactCountryFlag
+                      countryCode={language === "uz" ? "UZ" : "RU"}
+                      svg
+                      style={{ width: 20, height: 15, marginRight: 6 }}
+                    />
                     {language.toUpperCase()}
                   </Button>
-                </Dropdown>
+                </Dropdown> */}
 
                 <Button
-                  type="text"
+                  variant="solid"
                   icon={<LogoutOutlined />}
                   onClick={handleLogout}
-                  danger
+                  color="red"
                 >
                   Chiqish
                 </Button>
               </div>
             </Header>
 
-            <div style={{ padding: "0 24px 24px" }}>
+            <div style={{ padding: "0 16px 16px" }}>
               <Breadcrumb
                 items={[
                   { title: "Bosh sahifa" },
-                  {
-                    title: getCurrentPageLabel(),
-                  },
+                  { title: getCurrentPageLabel() },
                 ]}
                 style={{ margin: "16px 0" }}
               />
+
               <Content
-                className="h-[80vh]"
+                className="min-h-[60vh] md:h-[80vh]"
                 style={{
-                  padding: 24,
+                  padding: 16,
                   margin: 0,
                   background: colorBgContainer,
                   borderRadius: borderRadiusLG,
@@ -348,18 +438,22 @@ function AppLayout() {
               >
                 <Routes>
                   <Route path="/" element={<MapPage />} />
-                  <Route path="/xorazm" element={<XorazmPage />} />
-                  <Route path="/andijon" element={<AndijonPage />} />
-                  <Route path="/station/:id" element={<StationDetail />} />
                   <Route path="/station/:id" element={<StationDetail />} />
                   <Route
                     path="/station/:id/position/:ids"
                     element={<Positions />}
                   />
-                  <Route path="/archive/main/" element={<Archive />} />
+                  <Route path="/archive/main" element={<Archive />} />
                   <Route path="/archive-show/:ida/" element={<ShowArchive />} />
-                  <Route path="/kechikishlar/7kunlik/" element={<Week />} />
-                  <Route path="/kechikishlar/tugagan/" element={<Term />} />
+                  <Route path="/kechikishlar/7kunlik" element={<Week />} />
+                  <Route path="/kechikishlar/tugagan" element={<Term />} />
+                  <Route path="/kechikishlar/:id" element={<Weekdaitail />} />
+                  <Route path="/test" element={<Test />} />
+                  <Route path="/umumiy-qidiruv/" element={<Allsearch />} />
+                  <Route
+                    path="/umumiy-qidiruv/:ida"
+                    element={<AllSearchDetails />}
+                  />
                 </Routes>
               </Content>
             </div>

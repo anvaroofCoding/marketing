@@ -233,6 +233,9 @@ export default function AdvertisementDetail() {
               <Descriptions.Item label="Shartnoma summasi">
                 {reklama.Shartnoma_summasi} so‘m
               </Descriptions.Item>
+              <Descriptions.Item label="Tastiqlovchi">
+                {reklama.created_by}
+              </Descriptions.Item>
               <Descriptions.Item label="Shartnoma fayl">
                 <a
                   href={reklama.Shartnoma_fayl}

@@ -1,0 +1,20 @@
+{
+  "search_placeholder": "Поиск...",
+  "download_excel": "Скачать Excel",
+  "excel_success": "Excel успешно загружен",
+  "excel_error": "Ошибка при загрузке данных",
+  "id": "ID",
+  "tenant": "Арендатор",
+  "ad_name": "Название рекламы",
+  "contract_number": "Номер договора",
+  "station_name": "Название остановки",
+  "contract_start": "Начало договора",
+  "contract_end": "Окончание договора",
+  "phone_number": "Номер телефона",
+  "saved_at": "Сохранено",
+  "today": "Сегодня",
+  "yesterday": "Вчера",
+  "days_ago": "{{count}} дней назад",
+  "details": "Подробнее",
+  "details_tooltip": "Посмотреть подробнее"
+}

@@ -15,13 +15,11 @@ export default function Archive() {
   const { Column, ColumnGroup } = Table;
   const navigate = useNavigate();
 
-  // pagination va search uchun state
   const [page, setPage] = useState(1);
-  const [limit] = useState(7);
+  const [limit] = useState(9);
   const [search, setSearch] = useState("");
   const { data: excelBlob, isFetching } = useGetArchiveShowExcelQuery();
 
-  // API dan malumot olish
   const {
     data,
     isLoading: archiveloading,
@@ -39,53 +37,48 @@ export default function Archive() {
     notification.error({ message: "Ma'lumotlarni yuklashda xatolik" });
   }
 
-  //   batafsil korish funksiyasi
   function handleShow(ida) {
     navigate(`/archive-show/${ida}/`);
   }
 
   function handleDownloads() {
     if (!excelBlob) return;
-
-    // Blob'ni browserga yuklab olishga tayyorlash
     const url = window.URL.createObjectURL(excelBlob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "reklamalar-arxiv.xlsx"); // Fayl nomi
+    link.setAttribute("download", "reklamalar-arxiv.xlsx");
     document.body.appendChild(link);
     link.click();
     link.remove();
-    window.URL.revokeObjectURL(url); // Me
+    window.URL.revokeObjectURL(url);
     notification.success({ message: "Excel muvaffaqiyatli ko'chirildi" });
   }
 
-  console.log(data);
-
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col">
       {/* Search qismi */}
-      <div className="h-[15%] w-full flex items-center justify-between gap-2 p-2">
+      <div className="h-auto w-full flex flex-col sm:flex-row items-center justify-between gap-2 p-2">
         <Input
           placeholder="Qidirish..."
           prefix={<SearchOutlined />}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ width: "250px" }}
+          className="w-full sm:w-[250px]"
         />
         <Button
-          variant="solid"
-          color="green"
+          type="primary"
           icon={<FileExcelOutlined />}
           onClick={handleDownloads}
           loading={isFetching}
           disabled={!excelBlob}
+          className="w-full sm:w-auto"
         >
           Excel ko'chirish
         </Button>
       </div>
 
       {/* Jadval qismi */}
-      <div className="h-[85%] w-full">
+      <div className="flex-1 w-full overflow-x-auto">
         <Table
           dataSource={data?.results}
           rowKey="id"
@@ -95,9 +88,10 @@ export default function Archive() {
             total: data?.count,
             onChange: (p) => setPage(p),
           }}
+          scroll={{ x: "max-content" }} // kichik ekranlarda horizontal scroll
         >
           <ColumnGroup>
-            <Column title="ID" dataIndex="id" key="id" />
+            {/* <Column title="ID" dataIndex="id" key="id" responsive={["sm"]} /> */}
             <Column title="Ijarachi" dataIndex="Ijarachi" key="Ijarachi" />
             <Column
               title="Reklama nomi"
@@ -108,6 +102,7 @@ export default function Archive() {
               title="Shartnoma raqami"
               dataIndex="Shartnoma_raqami"
               key="Shartnoma_raqami"
+              responsive={["md"]}
             />
             <Column
               title="Bekat nomi"
@@ -118,16 +113,19 @@ export default function Archive() {
               title="Shartnoma boshlanishi"
               dataIndex="Shartnoma_muddati_boshlanishi"
               key="Shartnoma_muddati_boshlanishi"
+              responsive={["lg"]}
             />
             <Column
               title="Shartnoma tugashi"
               dataIndex="Shartnoma_tugashi"
               key="Shartnoma_tugashi"
+              responsive={["lg"]}
             />
             <Column
               title="Telefon raqami"
               dataIndex="contact_number"
               key="contact_number"
+              responsive={["md"]}
             />
             <Column
               title="Saqlandi"
@@ -139,11 +137,16 @@ export default function Archive() {
                 const diffDays = Math.floor(
                   (now - givenDate) / (1000 * 60 * 60 * 24)
                 );
-
                 if (diffDays === 0) return "Bugun";
                 if (diffDays === 1) return "Kecha";
                 return `${diffDays} kun oldin`;
               }}
+            />
+            <Column
+              title="Tastiqlovchi"
+              dataIndex="created_by"
+              key="created_by"
+              responsive={["md"]}
             />
             <Column
               title="Batafsil"
@@ -153,9 +156,8 @@ export default function Archive() {
                   <Tooltip title="Batafsil ko'rish">
                     <Button
                       type="primary"
-                      onClick={() => {
-                        handleShow(record.id);
-                      }}
+                      size="small"
+                      onClick={() => handleShow(record.id)}
                     >
                       <EyeOutlined />
                     </Button>

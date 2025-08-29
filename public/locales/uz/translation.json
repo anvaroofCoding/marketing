@@ -1,0 +1,20 @@
+{
+  "search_placeholder": "Qidirish...",
+  "download_excel": "Excel ko'chirish",
+  "excel_success": "Excel muvaffaqiyatli ko'chirildi",
+  "excel_error": "Ma'lumotlarni yuklashda xatolik",
+  "id": "ID",
+  "tenant": "Ijarachi",
+  "ad_name": "Reklama nomi",
+  "contract_number": "Shartnoma raqami",
+  "station_name": "Bekat nomi",
+  "contract_start": "Shartnoma boshlanishi",
+  "contract_end": "Shartnoma tugashi",
+  "phone_number": "Telefon raqami",
+  "saved_at": "Saqlandi",
+  "today": "Bugun",
+  "yesterday": "Kecha",
+  "days_ago": "{{count}} kun oldin",
+  "details": "Batafsil",
+  "details_tooltip": "Batafsil ko'rish"
+}

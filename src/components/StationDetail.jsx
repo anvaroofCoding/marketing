@@ -36,28 +36,25 @@ const { Column, ColumnGroup } = Table;
 
 export default function StationDetail() {
   notification.config({
-    placement: "top", // yuqorida chiqadi
-    duration: 3, // nechchi soniyada yopiladi
+    placement: "top",
+    duration: 3,
   });
+
   const [value, setValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
+  const [pageSize, setPageSize] = useState(8);
   const [inputValue, setInputValue] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  // const [file, setFile] = useState(null);
   const navigate = useNavigate();
-
   const { id } = useParams();
 
-  // stationni olish
+  // API hooks
   const {
     data: station,
     isLoading: stationLoading,
     error: Iserr,
   } = useGetStationQuery(id);
-
-  // positions olish
   const {
     data: positions,
     isLoading: positionsLoading,
@@ -70,62 +67,37 @@ export default function StationDetail() {
     search: value,
   });
 
-  // position qoshish
   const [createPosition, { isLoading: createLoding, error: createError }] =
     useCreatePositionMutation();
-
   const [deletePosition, { isLoading: deleteLoading }] =
     useDeletePositionMutation();
-
   const [updatePosition, { isLoading: updateLoading }] =
     useUpdatePositionMutation();
-
   const [postPdf] = usePostPdfMutation();
-
   const { data: excelBlob, isFetching } = useGetArchiveExcelQuery();
-
-  
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  if (positionsLoading || stationLoading || createLoding || updateLoading)
+  if (positionsLoading || stationLoading || createLoding || updateLoading) {
     return (
-      <div className="w-full h-[100%] flex justify-center items-center">
+      <div className="w-full h-screen flex justify-center items-center">
         <Spin size="large" />
       </div>
     );
-
-  if (Iserr || Eserr) {
-    notification.error({ message: "Sahifani yangilang" });
   }
 
-  // if (updeteposision) {
-  //   notification.error({ message: "Siz mavjud bo'lgan raqamni yozyapsiz!" });
-  // }
-
-  if (createError) {
+  if (Iserr || Eserr) notification.error({ message: "Sahifani yangilang" });
+  if (createError)
     notification.error({
-      message: "Bunday positsiya mavjud iltimos raqamni boshqa qo'ying",
+      message: "Bunday positsiya mavjud, boshqa raqam qo‘ying",
     });
-  }
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
 
   const handleDelete = async (ids) => {
     try {
       await deletePosition(ids).unwrap();
-
-      // o'chirilgandan keyin sahifa bo'shab qolmasligi uchun
       if (positions?.results?.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
-
       notification.success({ message: "Muvaffaqiyatli o'chirildi" });
     } catch (error) {
       notification.error({ message: `${error}` });
@@ -134,18 +106,11 @@ export default function StationDetail() {
 
   const handleOk = async () => {
     try {
-      await createPosition({
-        station_id: id, // qaysi stansiya bo‘lsa
-        number: inputValue, // formdan kelgan qiymat
-      }).unwrap();
-
+      await createPosition({ station_id: id, number: inputValue }).unwrap();
       notification.success({ message: "Positsiya qo‘shildi" });
       setIsModalOpen(false);
     } catch (err) {
-      notification.error({
-        message: "Xatolik",
-        description: err.toString(),
-      });
+      notification.error({ message: "Xatolik", description: err.toString() });
     }
   };
 
@@ -160,8 +125,7 @@ export default function StationDetail() {
   };
 
   const handleChange = async (info) => {
-    const file = info.file; // faqat faylni olamiz
-
+    const file = info.file;
     if (!file) return;
 
     try {
@@ -172,31 +136,31 @@ export default function StationDetail() {
       });
       refetch();
     } catch (err) {
-      console.error("Xato:", err);
       notification.error({ message: "PDF yangilashda xatolik yuz berdi!" });
+      console.log(err);
     }
   };
 
   function handleDownloads() {
     if (!excelBlob) return;
-
-    // Blob'ni browserga yuklab olishga tayyorlash
     const url = window.URL.createObjectURL(excelBlob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "reklamalar.xlsx"); // Fayl nomi
+    link.setAttribute("download", "reklamalar.xlsx");
     document.body.appendChild(link);
     link.click();
     link.remove();
-    window.URL.revokeObjectURL(url); // Me
+    window.URL.revokeObjectURL(url);
     notification.success({ message: "Excel muvaffaqiyatli ko'chirildi" });
   }
-  // console.log(station);
+
   return (
-    <div className="w-full h-full">
-      <div className="h-[15%] w-full flex justify-between items-center">
-        <div className="flex gap-5">
-          <Link to={station.schema_image} target="_blank">
+    <div className="w-full h-full p-2 flex flex-col gap-3">
+      {/* Header qismi */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+        {/* Chap tomondagi tugmalar */}
+        <div className="flex flex-wrap gap-2">
+          <Link to={station?.schema_image} target="_blank">
             <Button type="primary" icon={<EyeOutlined />}>
               Bekat chizmasi
             </Button>
@@ -204,7 +168,7 @@ export default function StationDetail() {
           <Upload
             accept=".pdf"
             showUploadList={false}
-            beforeUpload={() => false} // avtomatik yuklashni bloklaydi
+            beforeUpload={() => false}
             onChange={handleChange}
           >
             <Button variant="solid" color="orange" icon={<UploadOutlined />}>
@@ -222,83 +186,33 @@ export default function StationDetail() {
             Excel ko'chirish
           </Button>
         </div>
-        {/* <Input
-          placeholder="Qidiruv"
-          style={{ width: 400 }}
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value); // qiymatni olish
-          }}
-        /> */}
-        <div className="flex items-center gap-5">
+
+        {/* O'ng tomondagi qidiruv va qo‘shish */}
+        <div className="flex flex-wrap items-center gap-2">
           <Input
             placeholder="Qidirish..."
             prefix={<SearchOutlined />}
             value={value}
-            onChange={(e) => {
-              setValue(e.target.value); // qiymatni olish
-            }}
-            style={{ width: "250px" }}
+            onChange={(e) => setValue(e.target.value)}
+            style={{ width: 250 }}
           />
           <Button
             variant="solid"
             color="primary"
-            onClick={showModal}
+            onClick={() => setIsModalOpen(true)}
             icon={<PlusOutlined />}
           >
             Joy qo'shish
           </Button>
         </div>
-
-        {/* qo'shish */}
-        <Modal
-          title="Yangi Position qo‘shish"
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          confirmLoading={createLoding}
-          footer={[
-            <Button key="back" onClick={handleCancel}>
-              Bekor qilish
-            </Button>,
-            <Button
-              key="submit"
-              type="primary"
-              loading={createLoding}
-              onClick={handleOk}
-            >
-              Qo‘shish
-            </Button>,
-          ]}
-        >
-          <Input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Position raqamini kiriting"
-            type="number"
-          />
-        </Modal>
-
-        {/* tahrirlash */}
-        <Modal
-          title="Pozitsiyani tahrirlash"
-          open={isEditModalOpen}
-          onOk={handleUpdate}
-          onCancel={() => setIsEditModalOpen(false)}
-          confirmLoading={updateLoading}
-        >
-          <Input
-            placeholder="Number kiriting"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-        </Modal>
       </div>
 
-      <div className="h-[85%] w-full">
+      {/* Jadval */}
+      <div className="flex-1 overflow-auto">
         <Table
           dataSource={positions?.results}
           rowKey="id"
+          scroll={{ x: "max-content" }} // 📌 Jadvalni scrollable qildim
           pagination={{
             current: currentPage,
             pageSize,
@@ -310,9 +224,29 @@ export default function StationDetail() {
           }}
         >
           <ColumnGroup>
-            <Column title="ID" dataIndex="id" key="id" />
+            {/* <Column title="ID" dataIndex="id" key="id" /> */}
             <Column title="Raqami" dataIndex="number" key="number" />
             <Column title="Bekat" dataIndex="station" key="station" />
+            <Column
+              title="Saqlandi"
+              dataIndex="created_at"
+              key="created_at"
+              render={(created_at) => {
+                const now = new Date();
+                const givenDate = new Date(created_at);
+                const diffDays = Math.floor(
+                  (now - givenDate) / (1000 * 60 * 60 * 24)
+                );
+                if (diffDays === 0) return "Bugun";
+                if (diffDays === 1) return "Kecha";
+                return `${diffDays} kun oldin`;
+              }}
+            />
+            <Column
+              title="Tastiqlovchi"
+              dataIndex="created_by"
+              key="created_by"
+            />
             <Column
               title="Status"
               dataIndex="status"
@@ -334,7 +268,7 @@ export default function StationDetail() {
               key="action"
               render={(_, record) => (
                 <Space size="middle">
-                  <Tooltip title="Yangi qo‘shish">
+                  <Tooltip title="Reklama qo'shish" color="green">
                     <Button
                       type="primary"
                       style={{ background: "green", borderColor: "green" }}
@@ -343,21 +277,20 @@ export default function StationDetail() {
                       <AppstoreAddOutlined />
                     </Button>
                   </Tooltip>
-
-                  <Tooltip title="Tahrirlash">
+                  <Tooltip title="Tahrirlash" color="orange">
                     <Button
                       type="primary"
-                      onClick={() => {
-                        setInputValue(record.number); // mavjud qiymatni inputga tushiramiz
-                        setEditingId(record.id); // qaysi id tahrirlanayotganini saqlaymiz
-                        setIsEditModalOpen(true); // modalni ochamiz
-                      }}
                       style={{ background: "orange", borderColor: "orange" }}
+                      onClick={() => {
+                        setInputValue(record.number);
+                        setEditingId(record.id);
+                        setIsEditModalOpen(true);
+                      }}
                     >
                       <EditOutlined />
                     </Button>
                   </Tooltip>
-                  <Tooltip title="O‘chirish">
+                  <Tooltip title="O‘chirish" color="red">
                     <Popconfirm
                       title="O‘chirishni tasdiqlaysizmi?"
                       okText="Ha"
@@ -376,6 +309,50 @@ export default function StationDetail() {
           </ColumnGroup>
         </Table>
       </div>
+
+      {/* Qo‘shish Modal */}
+      <Modal
+        title="Yangi Position qo‘shish"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={() => setIsModalOpen(false)}
+        confirmLoading={createLoding}
+        footer={[
+          <Button key="back" onClick={() => setIsModalOpen(false)}>
+            Bekor qilish
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={createLoding}
+            onClick={handleOk}
+          >
+            Qo‘shish
+          </Button>,
+        ]}
+      >
+        <Input
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Position raqamini kiriting"
+          type="number"
+        />
+      </Modal>
+
+      {/* Tahrirlash Modal */}
+      <Modal
+        title="Pozitsiyani tahrirlash"
+        open={isEditModalOpen}
+        onOk={handleUpdate}
+        onCancel={() => setIsEditModalOpen(false)}
+        confirmLoading={updateLoading}
+      >
+        <Input
+          placeholder="Number kiriting"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+      </Modal>
     </div>
   );
 }

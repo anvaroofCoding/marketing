@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Input, notification, Space, Spin, Table, Tooltip } from "antd";
-import { useGetTimeQuery, useGetTugaganExcelQuery } from "../services/api";
+import { useGetSearchExcelQuery, useGetSearchsQuery } from "../services/api";
 import {
   EyeOutlined,
   FileExcelOutlined,
@@ -8,37 +8,34 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-export default function Week() {
+export default function Allsearch() {
   const { Column, ColumnGroup } = Table;
   const navigate = useNavigate();
 
-  // pagination va search uchun state
   const [page, setPage] = useState(1);
   const [limit] = useState(9);
   const [search, setSearch] = useState("");
-  const { data: excelBlob, isFetching } = useGetTugaganExcelQuery();
+  const { data: excelBlob, isFetching } = useGetSearchExcelQuery({ search });
 
-  // API dan malumot olish
   const {
     data,
-    isLoading: Endloading,
-    error: EndError,
-  } = useGetTimeQuery({ page, limit, search });
+    isLoading: searchLoading,
+    error: searchError,
+  } = useGetSearchsQuery({ page, limit, search });
 
-  if (Endloading) {
+  if (searchLoading) {
     return (
       <div className="w-full h-full flex justify-center items-center">
         <Spin size="large" />
       </div>
     );
   }
-  if (EndError) {
+  if (searchError) {
     notification.error({ message: "Ma'lumotlarni yuklashda xatolik" });
   }
 
-  //   batafsil ko‘rish
-  function handleShow(id) {
-    navigate(`/kechikishlar/${id}`);
+  function handleShow(ida) {
+    navigate(`/umumiy-qidiruv/${ida}/`);
   }
 
   function handleDownloads() {
@@ -46,7 +43,7 @@ export default function Week() {
     const url = window.URL.createObjectURL(excelBlob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "vaqti-tugaganlar.xlsx");
+    link.setAttribute("download", "jami-reklamalar.xlsx");
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -80,7 +77,7 @@ export default function Week() {
       {/* Jadval qismi */}
       <div className="flex-1 w-full overflow-x-auto">
         <Table
-          dataSource={data?.results?.tugagan}
+          dataSource={data?.results}
           rowKey="id"
           pagination={{
             current: page,
@@ -91,7 +88,7 @@ export default function Week() {
           scroll={{ x: "max-content" }} // kichik ekranlarda horizontal scroll
         >
           <ColumnGroup>
-            <Column title="ID" dataIndex="id" key="id" responsive={["sm"]} />
+            {/* <Column title="ID" dataIndex="id" key="id" responsive={["sm"]} /> */}
             <Column title="Ijarachi" dataIndex="Ijarachi" key="Ijarachi" />
             <Column
               title="Reklama nomi"
@@ -116,13 +113,6 @@ export default function Week() {
               dataIndex="Shartnoma_tugashi"
               key="Shartnoma_tugashi"
               responsive={["lg"]}
-              className="text-white"
-              onCell={() => ({
-                style: {
-                  backgroundColor: "#e03131ff", // fon rangi
-                  textAlign: "center",
-                },
-              })}
             />
             <Column
               title="Telefon raqami"
