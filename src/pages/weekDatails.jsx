@@ -48,9 +48,7 @@ export default function Weekdaitail() {
             style={{ border: "none" }}
           >
             <Descriptions.Item label="ID">{data.id}</Descriptions.Item>
-            <Descriptions.Item label="Stansiya">
-              {data.station}
-            </Descriptions.Item>
+            <Descriptions.Item label="Bekat">{data.station}</Descriptions.Item>
             <Descriptions.Item label="Pozitsiya raqami">
               {data.position_number}
             </Descriptions.Item>

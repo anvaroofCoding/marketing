@@ -86,6 +86,8 @@ export default function StationDetail() {
     );
   }
 
+  console.log(station);
+
   if (Iserr || Eserr) notification.error({ message: "Sahifani yangilang" });
   if (createError)
     notification.error({
@@ -186,6 +188,7 @@ export default function StationDetail() {
             Excel ko'chirish
           </Button>
         </div>
+        <h2 className="font-bold text-2xl">{station.name}</h2>
 
         {/* O'ng tomondagi qidiruv va qo‘shish */}
         <div className="flex flex-wrap items-center gap-2">
@@ -243,7 +246,7 @@ export default function StationDetail() {
               }}
             />
             <Column
-              title="Tastiqlovchi"
+              title="Tasdiqlovchi"
               dataIndex="created_by"
               key="created_by"
             />

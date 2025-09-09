@@ -382,7 +382,12 @@ function AppLayout() {
               <div
                 style={{ display: "flex", alignItems: "center", gap: "20px" }}
               >
-                <Badge count={delays.counts.umumiy - 1} size="small">
+                <Badge
+                  count={
+                    delays.counts.tugagan + delays.counts.haftada_tugaydigan
+                  }
+                  size="small"
+                >
                   <BellOutlined
                     style={{ fontSize: 24, cursor: "pointer" }}
                     onClick={() => setOpenKeys(["/kechikishlar/"])}

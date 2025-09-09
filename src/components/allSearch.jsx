@@ -136,7 +136,7 @@ export default function Allsearch() {
               }}
             />
             <Column
-              title="Tastiqlovchi"
+              title="Tasdiqlovchi"
               dataIndex="created_by"
               key="created_by"
               responsive={["md"]}

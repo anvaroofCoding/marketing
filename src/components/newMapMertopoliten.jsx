@@ -149,10 +149,10 @@ export default function TashkentMetroMap() {
     xonobod: { x: 360, y: 910, name: "Xonobod", line: "yellow" },
     quruvchilar: { x: 280, y: 910, name: "Quruvchilar", line: "yellow" },
     turon: { x: 200, y: 910, name: "Turon", line: "yellow" },
-    qipchaq: {
+    qipchoq: {
       x: 107,
       y: 910,
-      name: "Qipchaq",
+      name: "Qipchoq",
       line: "yellow",
       transfer: ["red"],
     },
@@ -457,7 +457,7 @@ export default function TashkentMetroMap() {
                     style={{ userSelect: "none", WebkitUserSelect: "none" }}
                   >
                     {![
-                      "Qipchaq",
+                      "Qipchoq",
                       "Turon",
                       "Quruvchilar",
                       "Xonobod",

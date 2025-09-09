@@ -41,9 +41,7 @@ export default function ShowArchive() {
             style={{ border: "none" }}
           >
             <Descriptions.Item label="ID">{data.id}</Descriptions.Item>
-            <Descriptions.Item label="Stansiya">
-              {data.station}
-            </Descriptions.Item>
+            <Descriptions.Item label="Bekat">{data.station}</Descriptions.Item>
             <Descriptions.Item label="Qurilma turi">
               {data.Qurilma_turi}
             </Descriptions.Item>

@@ -146,7 +146,7 @@ export default function Week() {
               }}
             />
             <Column
-              title="Tastiqlovchi"
+              title="Tasdiqlovchi"
               dataIndex="created_by"
               key="created_by"
               responsive={["md"]}

@@ -200,7 +200,7 @@ export default function AdvertisementDetail() {
               style={{ border: "none" }}
             >
               <Descriptions.Item label="ID">{reklama.id}</Descriptions.Item>
-              <Descriptions.Item label="Stansiya">
+              <Descriptions.Item label="Bekat">
                 {reklama.station}
               </Descriptions.Item>
               <Descriptions.Item label="Pozitsiya raqami">
@@ -233,7 +233,7 @@ export default function AdvertisementDetail() {
               <Descriptions.Item label="Shartnoma summasi">
                 {reklama.Shartnoma_summasi} so‘m
               </Descriptions.Item>
-              <Descriptions.Item label="Tastiqlovchi">
+              <Descriptions.Item label="Tasdiqlovchi">
                 {reklama.created_by}
               </Descriptions.Item>
               <Descriptions.Item label="Shartnoma fayl">
